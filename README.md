@@ -1,4 +1,4 @@
-# TrackSale's Software Engineer Backend Test
+# Software Engineer Backend Test
 
 ## Serving the Application
 
