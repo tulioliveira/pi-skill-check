@@ -56,34 +56,44 @@ const calculateTerm = termIndex => 4 * Math.pow(-1, termIndex) / (2 * termIndex 
  * @param {number} termValue - The term termValue
  */
 const addToPi = (termIndex, termValue) => {
-  _database2.default.pi.findOne({}, (err, data) => {
-    if (err) {
-      logger.error(err);
-    }
-    if (data) {
-      if (_lodash2.default.includes(data.termsIndexes, termIndex)) {
-        logger.info(`Pi already contains term ${termIndex}.`);
+  /**
+   * Because this logic can't be fully executed in a single event loop, it's a
+   * critical section where concurrent access may happen adding to Pi
+   */
+  lock.acquire('pi', done => {
+    _database2.default.pi.findOne({}, (err, data) => {
+      if (err) {
+        logger.error(err);
+        done();
+      }
+      if (data) {
+        if (_lodash2.default.includes(data.termsIndexes, termIndex)) {
+          logger.info(`Pi already contains term ${termIndex}.`);
+          done();
+        } else {
+          _database2.default.pi.update({}, {
+            pi: data.pi + termValue,
+            termsIndexes: [...data.termsIndexes, termIndex]
+          }, {}, updateError => {
+            if (updateError) {
+              logger.error(updateError);
+            } else {
+              logger.info(`Successfully added term ${termIndex}`);
+            }
+            done();
+          });
+        }
       } else {
-        _database2.default.pi.update({}, {
-          pi: data.pi + termValue,
-          termsIndexes: [...data.termsIndexes, termIndex]
-        }, {}, updateError => {
-          if (updateError) {
-            logger.error(updateError);
+        _database2.default.pi.insert({ pi: termValue, termsIndexes: [termIndex] }, insertError => {
+          if (insertError) {
+            logger.error(insertError);
           } else {
-            logger.info(`Successfully added term ${termIndex}`);
+            logger.info(`Successfully added term ${termIndex}. Pi object was created in the database.`);
           }
+          done();
         });
       }
-    } else {
-      _database2.default.pi.insert({ pi: termValue, termsIndexes: [termIndex] }, insertError => {
-        if (insertError) {
-          logger.error(insertError);
-        } else {
-          logger.info(`Successfully added term ${termIndex}. Pi object was created in the database.`);
-        }
-      });
-    }
+    });
   });
 };
 
