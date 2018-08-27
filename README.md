@@ -6,18 +6,24 @@ Pi Skill Check
 
 1. Desenvolver um sistema para cálculo distribuído do número irracional π (Pi).
 
-2. Descrição: O cálculo será feito utilizando qualquer uma das séries disponíveis na literatura que aproximam Pi. Cada termo da série será obtido realizando uma requisição concorrente ou paralela a um servidor, passando o termo da série desejado. O servidor retornará o valor correspondente que deve ser somado ao acumulador. Note que quanto mais termos utilizar, mais preciso será o número. 
+2. Descrição: O cálculo será feito utilizando qualquer uma das séries disponíveis na literatura que aproximam Pi. Cada termo da série será obtido realizando uma requisição concorrente ou paralela a um servidor, passando o termo da série desejado. O servidor retornará o valor correspondente que deve ser somado ao acumulador. Note que quanto mais termos utilizar, mais preciso será o número.
 
 3. Comunicação entre a aplicação e o servidor deve ser feita via REST.
 
 4. Criar também um endpoint REST para exibir o número já calculado e até qual termo da série foi somado para obter aquele valor.
 
-## Rodando a Aplicação
-
-Após clonar o repositório:
+## Build
 
 ```bash
-npm install --only=production
+npm install
+npm run build
+```
+## Rodando a Aplicação
+
+Após clonar o repositório e realizar o *build*:
+
+```bash
+npm prune --production
 npm run serve
 ```
 
